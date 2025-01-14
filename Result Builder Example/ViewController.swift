@@ -55,8 +55,10 @@ class ViewController: UIViewController {
             "In the shadow of the Orbital, humanity danced with the stars."
         ]
 
-        for string in strings {
-            rootStackView.addArrangedSubview(makeLabel(text: string))
+        buildViews { // <= (3) buildBlock([TextComponent, ...], [TextComponent, ...], ...) -> [TextComponent, ...] where each [TextComponent, ...] within invocation is result of buildArray, in this case it's going to be one argument
+            for string in strings { // <= (2) buildArray([[TextComponent, ...], ...]) -> [TextComponent, ...]
+                TextComponent(text: string) // <= (1) buildBlock([TextComponent], ...) → [TextComponent, ...]
+            }
         }
     }
 
@@ -68,5 +70,26 @@ class ViewController: UIViewController {
 
         return label
     }
-}
 
+    private func buildViews(@ViewBuilder _ builder: () -> [ViewComponent]) {
+        let components = builder()
+
+        for component in components {
+            guard let view = convertComponentToView(component) else {
+                continue
+            }
+
+            rootStackView.addArrangedSubview(view)
+        }
+    }
+
+    private func convertComponentToView(_ component: ViewComponent) -> UIView? {
+        switch component.self {
+        case is TextComponent:
+            let textComponent = component as! TextComponent
+            return makeLabel(text: textComponent.text)
+        default:
+            return nil
+        }
+    }
+}
