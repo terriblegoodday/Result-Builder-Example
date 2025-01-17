@@ -26,4 +26,13 @@ enum ViewBuilder {
     static func buildBlock(_ components: [ViewComponent]...) -> [ViewComponent] {
         components.flatMap { $0 }
     }
+
+    /// Transforms a single `ViewComponent` expression into an array of `ViewComponent`
+    /// This method allows the result builder to handle individual expressions by wrapping them in an array,
+    /// making it easier to compose and process in the context of the result builder.
+    /// For example, if a single `ViewComponent` is provided in a builder block,
+    /// this method ensures it is treated as a collection of components.
+    static func buildExpression(_ expression: ViewComponent) -> [ViewComponent] {
+        [expression]
+    }
 }

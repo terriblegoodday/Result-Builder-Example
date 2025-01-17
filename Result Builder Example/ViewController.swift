@@ -58,6 +58,11 @@ class ViewController: UIViewController {
         buildViews { // <= (3) buildBlock([TextComponent, ...], [TextComponent, ...], ...) -> [TextComponent, ...] where each [TextComponent, ...] within invocation is result of buildArray, in this case it's going to be one argument
             for string in strings { // <= (2) buildArray([[TextComponent, ...], ...]) -> [TextComponent, ...]
                 TextComponent(text: string) // <= (1) buildBlock([TextComponent], ...) → [TextComponent, ...]
+			}
+
+            HStackComponent {
+                TextComponent(text: "Label left")
+                TextComponent(text: "Label right")
             }
         }
     }
@@ -74,12 +79,33 @@ class ViewController: UIViewController {
     private func buildViews(@ViewBuilder _ builder: () -> [ViewComponent]) {
         let components = builder()
 
-        for component in components {
-            guard let view = convertComponentToView(component) else {
-                continue
-            }
+        buildViewHierarchy(components)
+    }
 
-            rootStackView.addArrangedSubview(view)
+    private func buildViewHierarchy(
+        _ components: [ViewComponent],
+        parent: UIStackView? = nil
+    ) {
+        let parent = parent ?? rootStackView
+
+        for component in components {
+            if let component = component as? HStackComponent {
+                let stackView = UIStackView()
+                stackView.translatesAutoresizingMaskIntoConstraints = false
+                stackView.spacing = 16
+                stackView.axis = .horizontal
+                stackView.distribution = .fillEqually
+
+                parent.addArrangedSubview(stackView)
+                NSLayoutConstraint.activate([
+                    stackView.leadingAnchor.constraint(equalTo: parent.leadingAnchor),
+                    stackView.trailingAnchor.constraint(equalTo: parent.trailingAnchor),
+                ])
+
+                buildViewHierarchy(component.children, parent: stackView)
+            } else if let view = convertComponentToView(component) {
+                parent.addArrangedSubview(view)
+            }
         }
     }
 
