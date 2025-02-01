@@ -58,7 +58,7 @@ class ViewController: UIViewController {
         buildViews { // <= (3) buildBlock([TextComponent, ...], [TextComponent, ...], ...) -> [TextComponent, ...] where each [TextComponent, ...] within invocation is result of buildArray, in this case it's going to be one argument
             for string in strings { // <= (2) buildArray([[TextComponent, ...], ...]) -> [TextComponent, ...]
                 TextComponent(text: string) // <= (1) buildBlock([TextComponent], ...) → [TextComponent, ...]
-			}
+            }
 
             HStackComponent {
                 TextComponent(text: "Label left")
